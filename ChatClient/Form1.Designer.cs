@@ -143,19 +143,25 @@
             // tabControl1
             // 
             tabControl1.Controls.Add(tabPage1);
-            tabControl1.Location = new Point(12, 94);
+            tabControl1.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tabControl1.HotTrack = true;
+            tabControl1.Location = new Point(20, 94);
+            tabControl1.Multiline = true;
             tabControl1.Name = "tabControl1";
+            tabControl1.Padding = new Point(12, 4);
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(455, 355);
+            tabControl1.Size = new Size(437, 355);
             tabControl1.TabIndex = 13;
+            tabControl1.DrawItem += tabControl1_DrawItem;
+            tabControl1.MouseClick += tabControl1_MouseClick;
             // 
             // tabPage1
             // 
             tabPage1.Controls.Add(readOnlyRichTextBox1);
-            tabPage1.Location = new Point(4, 24);
+            tabPage1.Location = new Point(4, 26);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(447, 327);
+            tabPage1.Size = new Size(429, 325);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "tabPage1";
             tabPage1.UseVisualStyleBackColor = true;
@@ -166,8 +172,9 @@
             readOnlyRichTextBox1.Dock = DockStyle.Fill;
             readOnlyRichTextBox1.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
             readOnlyRichTextBox1.Location = new Point(3, 3);
+            readOnlyRichTextBox1.MaxLength = 500;
             readOnlyRichTextBox1.Name = "readOnlyRichTextBox1";
-            readOnlyRichTextBox1.Size = new Size(441, 321);
+            readOnlyRichTextBox1.Size = new Size(423, 319);
             readOnlyRichTextBox1.TabIndex = 12;
             readOnlyRichTextBox1.Text = "";
             readOnlyRichTextBox1.TextChanged += readOnlyRichTextBox1_TextChanged;

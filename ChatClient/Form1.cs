@@ -1,3 +1,4 @@
+using ChatClient.Properties;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -11,9 +12,13 @@ namespace ChatClient
         string UserName = "";
         string Control = "";
         string mes;
+        Point _imageLocation = new Point(20, 4);
+        Point _imgHitArea = new Point(20, 4);
+        Image closeImage;
         public Form1()
         {
             InitializeComponent();
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -24,6 +29,7 @@ namespace ChatClient
             button1.Enabled = false;
             button2.Enabled = false;
             readOnlyRichTextBox1.BackColor = Color.White;
+
         }
 
         void ConnectUser()
@@ -203,18 +209,24 @@ namespace ChatClient
                     readOnlyRichTextBox1.Select(index, f.Length);
                     readOnlyRichTextBox1.SelectionBackColor = Color.Red;
                 }
-
             }
         }
 
-        private void readOnlyRichTextBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void readOnlyRichTextBox1_MouseDoubleClick(object sender, MouseEventArgs ex)
         {
+
+
             if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls.Find(readOnlyRichTextBox1.SelectedText, true).Length == 0)
             {
                 TabPage tabPage = new TabPage();
                 tabPage.Name = readOnlyRichTextBox1.SelectedText;
-                tabPage.Text = readOnlyRichTextBox1.SelectedText;
+                tabPage.Text = readOnlyRichTextBox1.SelectedText;               
                 tabControl1.Controls.Add(tabPage);
+                ReadOnlyRichTextBox readOnlyRichTextBox = new ReadOnlyRichTextBox();
+                tabPage.Controls.Add(readOnlyRichTextBox);
+                readOnlyRichTextBox.Dock = DockStyle.Fill;
+                readOnlyRichTextBox.BackColor = Color.Aqua;
+                readOnlyRichTextBox.MaxLength = 500;
             }
             if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls.Find(readOnlyRichTextBox1.SelectedText, true).Length > 0)
             {
@@ -222,6 +234,41 @@ namespace ChatClient
             }
         }
 
+        private void tabControl1_DrawItem(object sender, DrawItemEventArgs e)
+        {
 
+            closeImage = Properties.Resources.cross;
+
+            //tabControl1.Padding = new Point(15, 4);
+            Image img = new Bitmap(closeImage);
+            Rectangle r = e.Bounds;
+            r = this.tabControl1.GetTabRect(e.Index);
+            r.Offset(2, 2);
+            Brush TitleBrush = new SolidBrush(Color.Black);
+            Font f = this.Font;
+            string title = this.tabControl1.TabPages[e.Index].Text;
+            e.Graphics.DrawString(title, f, TitleBrush, new PointF(r.X, r.Y));
+            e.Graphics.DrawImage(img, new Point(r.X + (this.tabControl1.GetTabRect(e.Index).Width - _imageLocation.X), _imageLocation.Y));
+        }
+
+        private void tabControl1_MouseClick(object sender, MouseEventArgs e)
+        {
+            TabControl tabControl = (TabControl)sender;
+            Point p = e.Location;
+            int _tabWidth = 0;
+            _tabWidth = this.tabControl1.GetTabRect(tabControl.SelectedIndex).Width - (_imgHitArea.X);
+            Rectangle r = this.tabControl1.GetTabRect(tabControl.SelectedIndex);
+            r.Offset(_tabWidth, _imgHitArea.Y);
+            r.Width = 16;
+            r.Height = 16;
+            if (tabControl1.SelectedIndex >= 1)
+            {
+                if (r.Contains(p))
+                {
+                    TabPage tabPage = (TabPage)tabControl.TabPages[tabControl.SelectedIndex];
+                    tabControl.TabPages.Remove(tabPage);
+                }
+            }
+        }
     }
 }
