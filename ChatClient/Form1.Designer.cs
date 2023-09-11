@@ -38,7 +38,11 @@
             label4 = new Label();
             label5 = new Label();
             button3 = new Button();
+            tabControl1 = new TabControl();
+            tabPage1 = new TabPage();
             readOnlyRichTextBox1 = new ReadOnlyRichTextBox();
+            tabControl1.SuspendLayout();
+            tabPage1.SuspendLayout();
             SuspendLayout();
             // 
             // label1
@@ -136,23 +140,47 @@
             button3.UseVisualStyleBackColor = true;
             button3.Click += button3_Click;
             // 
+            // tabControl1
+            // 
+            tabControl1.Controls.Add(tabPage1);
+            tabControl1.Location = new Point(12, 94);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(455, 355);
+            tabControl1.TabIndex = 13;
+            // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(readOnlyRichTextBox1);
+            tabPage1.Location = new Point(4, 24);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(447, 327);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "tabPage1";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
             // readOnlyRichTextBox1
             // 
+            readOnlyRichTextBox1.BorderStyle = BorderStyle.FixedSingle;
+            readOnlyRichTextBox1.Dock = DockStyle.Fill;
             readOnlyRichTextBox1.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-            readOnlyRichTextBox1.Location = new Point(12, 97);
+            readOnlyRichTextBox1.Location = new Point(3, 3);
             readOnlyRichTextBox1.Name = "readOnlyRichTextBox1";
-            readOnlyRichTextBox1.Size = new Size(455, 352);
+            readOnlyRichTextBox1.Size = new Size(441, 321);
             readOnlyRichTextBox1.TabIndex = 12;
             readOnlyRichTextBox1.Text = "";
-            readOnlyRichTextBox1.LinkClicked += readOnlyRichTextBox1_LinkClicked;
+            readOnlyRichTextBox1.TextChanged += readOnlyRichTextBox1_TextChanged;
+            readOnlyRichTextBox1.MouseDoubleClick += readOnlyRichTextBox1_MouseDoubleClick;
             // 
             // Form1
             // 
+            AcceptButton = button1;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Control;
             ClientSize = new Size(479, 474);
-            Controls.Add(readOnlyRichTextBox1);
+            Controls.Add(tabControl1);
             Controls.Add(button3);
             Controls.Add(label5);
             Controls.Add(label4);
@@ -169,9 +197,10 @@
             Text = "SignalR_Client";
             FormClosed += Form1_FormClosed;
             Load += Form1_Load;
+            tabControl1.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
-            this.AcceptButton = this.button1;
         }
 
         #endregion
@@ -186,6 +215,8 @@
         private Label label4;
         private Label label5;
         private Button button3;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
         private ReadOnlyRichTextBox readOnlyRichTextBox1;
     }
 }

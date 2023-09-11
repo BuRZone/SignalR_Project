@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace ChatClient
 {
@@ -8,7 +10,7 @@ namespace ChatClient
         HubConnection? hubConnection;
         string UserName = "";
         string Control = "";
-
+        string mes;
         public Form1()
         {
             InitializeComponent();
@@ -72,7 +74,9 @@ namespace ChatClient
 
             hubConnection.On<string, string>("Receive", (user, message) =>
             {
+
                 var newMassage = $"  {user}: {message}";
+                mes = newMassage;
                 readOnlyRichTextBox1.AppendText(newMassage + "\n", Color.Black);
                 readOnlyRichTextBox1.ScrollToCaret();
             });
@@ -187,5 +191,37 @@ namespace ChatClient
 
             }
         }
+
+        private void readOnlyRichTextBox1_TextChanged(object sender, EventArgs e)
+        {
+            {
+                Regex regex = new Regex(@"^\s\s[\D\d\s\S\w\W]*:");
+                if (regex.IsMatch(mes) && !mes.Contains("Система") && !mes.Contains("  " + UserName + ":"))
+                {
+                    string f = regex.Match(mes).Value;
+                    int index = readOnlyRichTextBox1.Text.LastIndexOf(f);
+                    readOnlyRichTextBox1.Select(index, f.Length);
+                    readOnlyRichTextBox1.SelectionBackColor = Color.Red;
+                }
+
+            }
+        }
+
+        private void readOnlyRichTextBox1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls.Find(readOnlyRichTextBox1.SelectedText, true).Length == 0)
+            {
+                TabPage tabPage = new TabPage();
+                tabPage.Name = readOnlyRichTextBox1.SelectedText;
+                tabPage.Text = readOnlyRichTextBox1.SelectedText;
+                tabControl1.Controls.Add(tabPage);
+            }
+            if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls.Find(readOnlyRichTextBox1.SelectedText, true).Length > 0)
+            {
+                tabControl1.SelectTab(readOnlyRichTextBox1.SelectedText);
+            }
+        }
+
+
     }
 }
