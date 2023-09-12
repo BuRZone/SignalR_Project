@@ -64,5 +64,16 @@ namespace ServiceHub
 
             await Clients.All.SendAsync("Receive", user, message);
         }
+
+        public async Task PrivateSend(string sender, string recipient, string message)
+        {
+            var userQ = Users.FirstOrDefault(x => x.Name.Equals(recipient));
+            var user2Q = Users.FirstOrDefault(x => x.Name.Equals(sender));
+            if (userQ != null && user2Q != null) 
+            {
+                await Clients.Clients(userQ.connectionId, user2Q.connectionId).SendAsync("Private", sender , recipient, message);
+                
+            }
+        }
     }
 }

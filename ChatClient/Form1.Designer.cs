@@ -163,7 +163,7 @@
             tabPage1.Padding = new Padding(3);
             tabPage1.Size = new Size(429, 325);
             tabPage1.TabIndex = 0;
-            tabPage1.Text = "tabPage1";
+            tabPage1.Text = "Общий";
             tabPage1.UseVisualStyleBackColor = true;
             // 
             // readOnlyRichTextBox1

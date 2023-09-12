@@ -1,6 +1,7 @@
 using ChatClient.Properties;
 using Microsoft.AspNetCore.SignalR.Client;
 using System.Diagnostics;
+using System.Drawing.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -12,13 +13,14 @@ namespace ChatClient
         string UserName = "";
         string Control = "";
         string mes;
+        string priv;
         Point _imageLocation = new Point(20, 4);
         Point _imgHitArea = new Point(20, 4);
         Image closeImage;
+
         public Form1()
         {
             InitializeComponent();
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -29,7 +31,6 @@ namespace ChatClient
             button1.Enabled = false;
             button2.Enabled = false;
             readOnlyRichTextBox1.BackColor = Color.White;
-
         }
 
         void ConnectUser()
@@ -47,21 +48,28 @@ namespace ChatClient
         void DisconnectUser()
         {
             textBox1.Enabled = true;
+            textBox2.Enabled = false;
+            textBox2.Clear();
+            button1.Enabled = false;
             button2.Enabled = true;
             button3.Enabled = false;
             label4.Text = "0";
             label5.Text = "Notification: Disconnected";
-            textBox2.Enabled = false;
-            textBox2.Clear();
-            button1.Enabled = false;
         }
 
         private async void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                await hubConnection.InvokeAsync("Send", UserName, textBox2.Text);
-                textBox2.Clear();
+                if (!tabControl1.SelectedTab.Name.Equals(tabPage1.Name))
+                {
+                    await hubConnection.InvokeAsync("PrivateSend", UserName, tabControl1.SelectedTab.Name, textBox2.Text);
+                }
+                else
+                {
+                    await hubConnection.InvokeAsync("Send", UserName, textBox2.Text);
+                    textBox2.Clear();
+                }
             }
             catch (Exception ex)
             {
@@ -73,6 +81,23 @@ namespace ChatClient
         {
             ConnectUser();
             label5.Text = $"Notification: Connecting...";
+            hubConnection.On<string, string, string>("Private", (sender, recipient, message) =>
+            {
+                var newMassage = $"  {sender}: {message} ";
+                ReadOnlyRichTextBox tbx = (ReadOnlyRichTextBox)Controls.Find(recipient, true).LastOrDefault();
+                if (tbx != null)
+                {
+                    tbx.AppendText(newMassage + "\n", Color.Black);
+                    tbx.ScrollToCaret();
+                }
+                ReadOnlyRichTextBox tbx2 = (ReadOnlyRichTextBox)Controls.Find(sender, true).LastOrDefault();
+                if (tbx2 != null)
+                {
+                    tbx2.AppendText(newMassage + "\n", Color.Black);
+                    tbx2.ScrollToCaret();
+                }
+            });
+
             hubConnection.On<string>("AddUser", (message) =>
             {
                 Control = message;
@@ -80,7 +105,6 @@ namespace ChatClient
 
             hubConnection.On<string, string>("Receive", (user, message) =>
             {
-
                 var newMassage = $"  {user}: {message}";
                 mes = newMassage;
                 readOnlyRichTextBox1.AppendText(newMassage + "\n", Color.Black);
@@ -119,7 +143,8 @@ namespace ChatClient
                         await hubConnection.InvokeAsync("UsersConnected");
                         label5.Text = $"Notification: {Control}";
                         textBox2.Enabled = true;
-                        await hubConnection.InvokeAsync("Send", "Система", $"Пользователь под именем \"{UserName}\" вошел в чат");
+                        await hubConnection
+                            .InvokeAsync("Send", "Система", $"Пользователь под именем \"{UserName}\" вошел в чат");
                     }
                 }
                 else
@@ -137,7 +162,8 @@ namespace ChatClient
                 if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
                 {
                     DisconnectUser();
-                    await Task.Run(() => hubConnection.InvokeAsync("Send", "Система", $"Пользователь под именем \"{UserName}\" покинул чат").Wait());
+                    await Task.Run(() => hubConnection
+                    .InvokeAsync("Send", "Система", $"Пользователь под именем \"{UserName}\" покинул чат").Wait());
                     await Task.Run(() => hubConnection.InvokeAsync("UserNameRemove", UserName).Wait());
                     await Task.Run(() => hubConnection.StopAsync().Wait());
                 }
@@ -156,7 +182,8 @@ namespace ChatClient
                 if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
                 {
                     DisconnectUser();
-                    await Task.Run(() => hubConnection.InvokeAsync("Send", "Система", $"Пользователь под именем \"{UserName}\" покинул чат").Wait());
+                    await Task.Run(() => hubConnection
+                    .InvokeAsync("Send", "Система", $"Пользователь под именем \"{UserName}\" покинул чат").Wait());
                     await Task.Run(() => hubConnection.InvokeAsync("UserNameRemove", UserName).Wait());
                     await Task.Run(() => hubConnection.StopAsync().Wait());
                 }
@@ -205,6 +232,7 @@ namespace ChatClient
                 if (regex.IsMatch(mes) && !mes.Contains("Система") && !mes.Contains("  " + UserName + ":"))
                 {
                     string f = regex.Match(mes).Value;
+                    f = f.Replace(":", "");
                     int index = readOnlyRichTextBox1.Text.LastIndexOf(f);
                     readOnlyRichTextBox1.Select(index, f.Length);
                     readOnlyRichTextBox1.SelectionBackColor = Color.Red;
@@ -214,21 +242,23 @@ namespace ChatClient
 
         private void readOnlyRichTextBox1_MouseDoubleClick(object sender, MouseEventArgs ex)
         {
-
-
-            if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls.Find(readOnlyRichTextBox1.SelectedText, true).Length == 0)
+            if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls
+                .Find(readOnlyRichTextBox1.SelectedText, true).Length == 0)
             {
                 TabPage tabPage = new TabPage();
                 tabPage.Name = readOnlyRichTextBox1.SelectedText;
-                tabPage.Text = readOnlyRichTextBox1.SelectedText;               
+                tabPage.Text = readOnlyRichTextBox1.SelectedText;
+                //tabControl1.DrawMode = TabDrawMode.OwnerDrawFixed;
                 tabControl1.Controls.Add(tabPage);
                 ReadOnlyRichTextBox readOnlyRichTextBox = new ReadOnlyRichTextBox();
+                readOnlyRichTextBox.Name = readOnlyRichTextBox1.SelectedText;
                 tabPage.Controls.Add(readOnlyRichTextBox);
                 readOnlyRichTextBox.Dock = DockStyle.Fill;
                 readOnlyRichTextBox.BackColor = Color.Aqua;
                 readOnlyRichTextBox.MaxLength = 500;
             }
-            if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls.Find(readOnlyRichTextBox1.SelectedText, true).Length > 0)
+            if (readOnlyRichTextBox1.SelectionBackColor == Color.Red && tabControl1.Controls
+                .Find(readOnlyRichTextBox1.SelectedText, true).Length > 0)
             {
                 tabControl1.SelectTab(readOnlyRichTextBox1.SelectedText);
             }
@@ -236,19 +266,21 @@ namespace ChatClient
 
         private void tabControl1_DrawItem(object sender, DrawItemEventArgs e)
         {
-
-            closeImage = Properties.Resources.cross;
-
-            //tabControl1.Padding = new Point(15, 4);
-            Image img = new Bitmap(closeImage);
-            Rectangle r = e.Bounds;
-            r = this.tabControl1.GetTabRect(e.Index);
-            r.Offset(2, 2);
-            Brush TitleBrush = new SolidBrush(Color.Black);
-            Font f = this.Font;
-            string title = this.tabControl1.TabPages[e.Index].Text;
-            e.Graphics.DrawString(title, f, TitleBrush, new PointF(r.X, r.Y));
-            e.Graphics.DrawImage(img, new Point(r.X + (this.tabControl1.GetTabRect(e.Index).Width - _imageLocation.X), _imageLocation.Y));
+                closeImage = Properties.Resources.cross;
+                Image img = new Bitmap(closeImage);
+                Rectangle r = e.Bounds;
+                r = this.tabControl1.GetTabRect(e.Index);
+                r.Offset(2, 2);
+                Brush TitleBrush = new SolidBrush(Color.Black);
+                Font f = this.Font;
+                string title = this.tabControl1.TabPages[e.Index].Text;
+                e.Graphics.DrawString(title, f, TitleBrush, new PointF(r.X, r.Y));
+            
+            if (e.Index >= 1)
+            {
+                e.Graphics.DrawImage(img, new Point(r.X + (this.tabControl1
+                    .GetTabRect(e.Index).Width - _imageLocation.X), _imageLocation.Y));
+            }
         }
 
         private void tabControl1_MouseClick(object sender, MouseEventArgs e)
