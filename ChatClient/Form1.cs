@@ -84,13 +84,13 @@ namespace ChatClient
             hubConnection.On<string, string, string>("Private", (sender, recipient, message) =>
             {
                 var newMassage = $"  {sender}: {message} ";
-                ReadOnlyRichTextBox tbx = (ReadOnlyRichTextBox)Controls.Find(recipient, true).LastOrDefault();
+                ReadOnlyRichTextBox tbx = (ReadOnlyRichTextBox)Controls.Find(recipient, true).LastOrDefault()!;
                 if (tbx != null)
                 {
                     tbx.AppendText(newMassage + "\n", Color.Black);
                     tbx.ScrollToCaret();
                 }
-                ReadOnlyRichTextBox tbx2 = (ReadOnlyRichTextBox)Controls.Find(sender, true).LastOrDefault();
+                ReadOnlyRichTextBox tbx2 = (ReadOnlyRichTextBox)Controls.Find(sender, true).LastOrDefault()!;
                 if (tbx2 != null)
                 {
                     tbx2.AppendText(newMassage + "\n", Color.Black);

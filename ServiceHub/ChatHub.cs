@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace ServiceHub
 {
@@ -65,15 +67,42 @@ namespace ServiceHub
             await Clients.All.SendAsync("Receive", user, message);
         }
 
+        ObservableCollection<Message> collection = new ObservableCollection<Message>();
+        
         public async Task PrivateSend(string sender, string recipient, string message)
         {
+            collection.CollectionChanged += Collection_CollectionChanged;
+            
+            Message message1 = new Message()
+            {
+                Sender = sender,
+                Recipient = recipient,
+                _Message = message
+            };
+            collection.Add(message1);
+
+
             var userQ = Users.FirstOrDefault(x => x.Name.Equals(recipient));
             var user2Q = Users.FirstOrDefault(x => x.Name.Equals(sender));
-            if (userQ != null && user2Q != null) 
+            if (userQ != null && user2Q != null)
             {
-                await Clients.Clients(userQ.connectionId, user2Q.connectionId).SendAsync("Private", sender , recipient, message);
-                
+                await Clients.Clients(userQ.connectionId, user2Q.connectionId).SendAsync("Private", sender, recipient, message);
+                collection.Remove(message1);
             }
+            else if (user2Q == null)
+            {
+                await Clients.Caller.SendAsync("Private", sender, recipient, $"Сообщение не доставлено! Пользователь \"{recipient}\" покинул чат!");
+            }
+            else if (userQ == null)
+            {
+                await Clients.Caller.SendAsync("Private", sender, recipient, $"Сообщение не доставлено! Пользователь \"{recipient}\" покинул чат!");
+
+            }
+        }
+
+        private void Collection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }
