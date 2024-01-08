@@ -71,7 +71,6 @@ namespace ServiceHub
         
         public async Task PrivateSend(string sender, string recipient, string message)
         {
-            collection.CollectionChanged += Collection_CollectionChanged;
             
             Message message1 = new Message()
             {
@@ -98,11 +97,6 @@ namespace ServiceHub
                 await Clients.Caller.SendAsync("Private", sender, recipient, $"Сообщение не доставлено! Пользователь \"{recipient}\" покинул чат!");
 
             }
-        }
-
-        private void Collection_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
     }
 }

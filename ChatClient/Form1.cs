@@ -266,16 +266,16 @@ namespace ChatClient
 
         private void tabControl1_DrawItem(object sender, DrawItemEventArgs e)
         {
-                closeImage = Properties.Resources.cross;
-                Image img = new Bitmap(closeImage);
-                Rectangle r = e.Bounds;
-                r = this.tabControl1.GetTabRect(e.Index);
-                r.Offset(2, 2);
-                Brush TitleBrush = new SolidBrush(Color.Black);
-                Font f = this.Font;
-                string title = this.tabControl1.TabPages[e.Index].Text;
-                e.Graphics.DrawString(title, f, TitleBrush, new PointF(r.X, r.Y));
-            
+            closeImage = Properties.Resources.cross;
+            Image img = new Bitmap(closeImage);
+            Rectangle r = e.Bounds;
+            r = this.tabControl1.GetTabRect(e.Index);
+            r.Offset(2, 2);
+            Brush TitleBrush = new SolidBrush(Color.Black);
+            Font f = this.Font;
+            string title = this.tabControl1.TabPages[e.Index].Text;
+            e.Graphics.DrawString(title, f, TitleBrush, new PointF(r.X, r.Y));
+
             if (e.Index >= 1)
             {
                 e.Graphics.DrawImage(img, new Point(r.X + (this.tabControl1
